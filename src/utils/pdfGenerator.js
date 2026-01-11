@@ -40,6 +40,24 @@ export function generateInvoicePdf(invoice, storeInfo) {
         });
     };
 
+    // Format phone number (handle spreadsheet removing leading 0)
+    const formatPhoneNumber = (phone) => {
+        if (!phone) return '';
+        // Convert to string
+        let phoneStr = String(phone).replace(/\D/g, '');
+
+        // If starts with 62, convert to 0
+        if (phoneStr.startsWith('62')) {
+            phoneStr = '0' + phoneStr.substring(2);
+        }
+        // If doesn't start with 0 and length is 9-12 (lost leading 0), add it back
+        else if (!phoneStr.startsWith('0') && phoneStr.length >= 9 && phoneStr.length <= 12) {
+            phoneStr = '0' + phoneStr;
+        }
+
+        return phoneStr;
+    };
+
     // ===== WATERMARK LOGO (Background) =====
     if (storeInfo?.logo_base64) {
         try {
@@ -86,7 +104,7 @@ export function generateInvoicePdf(invoice, storeInfo) {
 
     // Store WA
     if (storeInfo?.wa_number) {
-        doc.text('WA: ' + storeInfo.wa_number, pageWidth / 2, yPos, { align: 'center' });
+        doc.text('WA: ' + formatPhoneNumber(storeInfo.wa_number), pageWidth / 2, yPos, { align: 'center' });
         yPos += lineHeight;
     }
 
@@ -111,7 +129,7 @@ export function generateInvoicePdf(invoice, storeInfo) {
     yPos += lineHeight;
 
     if (invoice.customer_wa) {
-        doc.text('WA: ' + invoice.customer_wa, margin, yPos);
+        doc.text('WA: ' + formatPhoneNumber(invoice.customer_wa), margin, yPos);
         yPos += lineHeight;
     }
 
