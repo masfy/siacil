@@ -204,7 +204,7 @@ export function generateInvoicePdf(invoice, storeInfo) {
 
     doc.setFontSize(6);
     doc.setTextColor(130);
-    doc.text('Powered by SI-ACIL', pageWidth / 2, yPos, { align: 'center' });
+    doc.text('Powered by SI-ACIL by Mas Alfy', pageWidth / 2, yPos, { align: 'center' });
 
     // Save
     const fileName = 'Invoice_' + (invoice.invoice_id || 'nota') + '_' + Date.now() + '.pdf';
