@@ -197,9 +197,7 @@ export function generateInvoicePdf(invoice, storeInfo) {
     doc.setFont('helvetica', 'normal');
     doc.text('Terima kasih atas kunjungan Anda!', pageWidth / 2, yPos, { align: 'center' });
     yPos += lineHeight;
-    doc.text('Minta rela.', pageWidth / 2, yPos, { align: 'center' });
-    yPos += lineHeight + 2;
-    doc.text('Barakallah!', pageWidth / 2, yPos, { align: 'center' });
+    doc.text('Barakallah! Minta rela.', pageWidth / 2, yPos, { align: 'center' });
     yPos += lineHeight + 2;
 
     doc.setFontSize(6);
