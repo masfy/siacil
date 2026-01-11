@@ -155,12 +155,18 @@ export function generateInvoicePdf(invoice, storeInfo) {
     yPos += 5;
 
     // ===== TOTAL =====
+    // Calculate total from items (in case total_amount is missing)
+    const calculatedTotal = items.reduce((sum, item) => {
+        return sum + ((parseInt(item.price) || 0) * (parseInt(item.qty) || 1));
+    }, 0);
+    const finalTotal = calculatedTotal > 0 ? calculatedTotal : (invoice.total_amount || 0);
+
     doc.setDrawColor(0);
     doc.setLineDashPattern([], 0);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('TOTAL', margin, yPos);
-    doc.text(formatCurrency(invoice.total_amount || 0), pageWidth - margin, yPos, { align: 'right' });
+    doc.text(formatCurrency(finalTotal), pageWidth - margin, yPos, { align: 'right' });
     yPos += lineHeight + 3;
 
     // ===== FOOTER =====
