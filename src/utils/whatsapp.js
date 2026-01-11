@@ -38,7 +38,7 @@ export function generateWhatsAppLink(invoice, storeInfo, customerWa = null) {
     message += '========================\n';
     message += '| *' + (storeInfo?.store_name || 'Toko') + '*\n';
     if (storeInfo?.address) {
-        message += '| _' + storeInfo.address + '_\n';
+        message += '_' + storeInfo.address + '_\n';
     }
     message += '\n';
 
