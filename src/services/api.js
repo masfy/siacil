@@ -1,14 +1,27 @@
 // API Service for Google Apps Script communication
 
+/**
+ * ============================================
+ * KONFIGURASI API URL
+ * ============================================
+ * Ganti URL di bawah ini dengan URL Web App Google Apps Script Anda.
+ * Cara mendapatkan URL:
+ * 1. Buka Google Apps Script dari Spreadsheet
+ * 2. Deploy > New deployment > Web app
+ * 3. Execute as: Me, Who has access: Anyone
+ * 4. Copy URL yang muncul dan paste di bawah
+ */
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwordP868PjT2okQHDvCgWdlq9Q71q4UtuhkFCF1lzgVFYDX8HOysCvmsl1U-Hc6zNZ/exec';
+
 const API_URL_KEY = 'SI_ACIL_API_URL';
 const USER_DATA_KEY = 'SI_ACIL_USER_DATA';
 const FIRST_LOGIN_KEY = 'SI_ACIL_FIRST_LOGIN';
 
 /**
- * Get the stored API URL from localStorage
+ * Get the API URL (uses default if not set in localStorage)
  */
 export function getApiUrl() {
-    return localStorage.getItem(API_URL_KEY);
+    return localStorage.getItem(API_URL_KEY) || DEFAULT_API_URL;
 }
 
 /**
@@ -19,10 +32,17 @@ export function setApiUrl(url) {
 }
 
 /**
- * Clear the API URL from localStorage
+ * Clear the API URL from localStorage (will fall back to default)
  */
 export function clearApiUrl() {
     localStorage.removeItem(API_URL_KEY);
+}
+
+/**
+ * Check if using default API URL
+ */
+export function isUsingDefaultApi() {
+    return !localStorage.getItem(API_URL_KEY);
 }
 
 /**
