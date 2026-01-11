@@ -1,9 +1,10 @@
 import jsPDF from 'jspdf';
+import QRCode from 'qrcode';
 
 /**
- * Generate invoice PDF with logo in header and watermark
+ * Generate invoice PDF with logo in header, watermark, and QR code for validation
  */
-export function generateInvoicePdf(invoice, storeInfo) {
+export async function generateInvoicePdf(invoice, storeInfo) {
     const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -187,6 +188,67 @@ export function generateInvoicePdf(invoice, storeInfo) {
     doc.text(formatCurrency(finalTotal), pageWidth - margin, yPos, { align: 'right' });
     yPos += lineHeight + 3;
 
+    // ===== QR CODE FOR VALIDATION =====
+    try {
+        // Format date for QR
+        const qrDate = new Date(invoice.date);
+        const formattedQrDate = qrDate.toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+
+        // Format currency for QR
+        const formattedTotal = 'Rp ' + new Intl.NumberFormat('id-ID').format(finalTotal);
+
+        // Create human-readable validation data
+        const validationData = [
+            '= VALIDASI STRUK =',
+            '',
+            invoice.invoice_id || 'INV-0000',
+            '',
+            'Customer: ' + (invoice.customer_name || 'Pelanggan'),
+            'Total: ' + formattedTotal,
+            'Tgl: ' + formattedQrDate,
+            'Item: ' + items.length + ' produk',
+            '',
+            '=== SI-ACIL by Mas Alfy ==='
+        ].join('\n');
+
+        // Generate QR code as data URL
+        const qrDataUrl = await QRCode.toDataURL(validationData, {
+            width: 100,
+            margin: 1,
+            color: {
+                dark: '#000000',
+                light: '#ffffff'
+            }
+        });
+
+        // Separator before QR
+        doc.setDrawColor(150);
+        doc.setLineDashPattern([1, 1], 0);
+        doc.line(margin, yPos, pageWidth - margin, yPos);
+        yPos += 3;
+
+        // QR Code label
+        doc.setFontSize(6);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100);
+        doc.text('Scan untuk validasi struk', pageWidth / 2, yPos, { align: 'center' });
+        yPos += 2;
+
+        // Add QR code image
+        const qrSize = 22;
+        const qrX = (pageWidth - qrSize) / 2;
+        doc.addImage(qrDataUrl, 'PNG', qrX, yPos, qrSize, qrSize);
+        yPos += qrSize + 3;
+
+    } catch (e) {
+        console.error('QR Code generation error:', e);
+        yPos += 3;
+    }
+
     // ===== FOOTER =====
     doc.setDrawColor(150);
     doc.setLineDashPattern([1, 1], 0);
@@ -195,6 +257,7 @@ export function generateInvoicePdf(invoice, storeInfo) {
 
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0);
     doc.text('Terima kasih atas kepercayaan Anda.', pageWidth / 2, yPos, { align: 'center' });
     yPos += lineHeight;
     doc.text('Barang yang dibeli sudah sah.', pageWidth / 2, yPos, { align: 'center' });
