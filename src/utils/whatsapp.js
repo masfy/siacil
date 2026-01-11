@@ -34,18 +34,18 @@ export function generateWhatsAppLink(invoice, storeInfo, customerWa = null) {
     let message = '';
 
     // Header
-    message += '🧾 *NOTA PEMBELIAN*\n';
+    message += ' 🧾 *INVOICE*\n';
     message += '━━━━━━━━━━━━━━━━\n';
-    message += '🏪 *' + (storeInfo?.store_name || 'Toko') + '*\n';
+    message += ' 🏪 *' + (storeInfo?.store_name || 'Toko') + '*\n';
     if (storeInfo?.address) {
         message += '📍 ' + storeInfo.address + '\n';
     }
     message += '\n';
 
     // Invoice info
-    message += '📋 No: #' + (invoice.invoice_id || 'INV-0000') + '\n';
-    message += '📅 ' + formatDate(invoice.date) + '\n';
-    message += '👤 ' + (invoice.customer_name || 'Pelanggan') + '\n';
+    message += ' 📋 No: #' + (invoice.invoice_id || 'INV-0000') + '\n';
+    message += ' 📅 ' + formatDate(invoice.date) + '\n';
+    message += ' 👤 ' + (invoice.customer_name || 'Pelanggan') + '\n';
     message += '\n';
 
     // Items
@@ -64,8 +64,8 @@ export function generateWhatsAppLink(invoice, storeInfo, customerWa = null) {
 
     // Footer
     message += '━━━━━━━━━━━━━━━━\n';
-    message += '✨ Terima kasih atas kunjungan Anda!\n';
-    message += '🤲 Barakallah!\n';
+    message += ' ✨ Terima kasih atas kunjungan Anda! Minta rela 😊🙏🏼 \n';
+    message += ' 🤲 Barakallah!\n';
     message += '\n';
     message += '_Powered by SI-ACIL_';
 
