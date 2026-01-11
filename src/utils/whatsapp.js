@@ -34,23 +34,23 @@ export function generateWhatsAppLink(invoice, storeInfo, customerWa = null) {
     let message = '';
 
     // Header
-    message += ' 🧾 *INVOICE*\n';
-    message += '━━━━━━━━━━━━━━━━\n';
+    message += '*INVOICE*\n';
+    message += '========================\n';
     message += ' 🏪 *' + (storeInfo?.store_name || 'Toko') + '*\n';
     if (storeInfo?.address) {
-        message += '📍 ' + storeInfo.address + '\n';
+        message += ' 📍 ' + storeInfo.address + '\n';
     }
     message += '\n';
 
     // Invoice info
     message += ' 📋 No: #' + (invoice.invoice_id || 'INV-0000') + '\n';
-    message += ' 📅 ' + formatDate(invoice.date) + '\n';
-    message += ' 👤 ' + (invoice.customer_name || 'Pelanggan') + '\n';
+    message += ' 📅 Tanggal: ' + formatDate(invoice.date) + '\n';
+    message += ' 👤 Pelanggan: ' + (invoice.customer_name || 'Pelanggan') + '\n';
     message += '\n';
 
     // Items
     message += '*Detail Pembelian:*\n';
-    message += '─────────────────\n';
+    message += '------------------------\n';
 
     items.forEach((item, idx) => {
         const itemTotal = (item.price || 0) * (item.qty || 1);
@@ -58,14 +58,20 @@ export function generateWhatsAppLink(invoice, storeInfo, customerWa = null) {
         message += '   ' + (item.qty || 1) + ' x ' + formatCurrency(item.price || 0) + ' = ' + formatCurrency(itemTotal) + '\n';
     });
 
-    message += '─────────────────\n';
-    message += '*TOTAL: ' + formatCurrency(invoice.total_amount || 0) + '*\n';
+    message += '------------------------\n';
+
+    // Calculate total from items (in case total_amount is missing)
+    const calculatedTotal = items.reduce((sum, item) => {
+        return sum + ((parseInt(item.price) || 0) * (parseInt(item.qty) || 1));
+    }, 0);
+    const finalTotal = calculatedTotal > 0 ? calculatedTotal : (invoice.total_amount || 0);
+
+    message += '*TOTAL: ' + formatCurrency(finalTotal) + '*\n';
     message += '\n';
 
     // Footer
-    message += '━━━━━━━━━━━━━━━━\n';
+    message += '========================\n';
     message += ' ✨ Terima kasih atas kunjungan Anda! Minta rela 😊🙏🏼 \n';
-    message += ' 🤲 Barakallah!\n';
     message += '\n';
     message += '_Powered by SI-ACIL_';
 
@@ -77,11 +83,26 @@ export function generateWhatsAppLink(invoice, storeInfo, customerWa = null) {
     let phone = customerWa || invoice.customer_wa || storeInfo?.wa_number || '';
 
     if (phone) {
-        // Clean the number (remove non-digits, ensure starts with country code)
-        phone = phone.replace(/\D/g, '');
-        if (phone.startsWith('0')) {
+        // Convert to string and clean the number (remove non-digits)
+        phone = String(phone).replace(/\D/g, '');
+
+        // Handle various formats:
+        // - "81234567890" (stored as number, lost leading 0) → "6281234567890"
+        // - "081234567890" (with leading 0) → "6281234567890"
+        // - "6281234567890" (already with country code) → keep as is
+        // - "628123456789" (already correct) → keep as is
+
+        if (phone.startsWith('62')) {
+            // Already has country code, use as is
+        } else if (phone.startsWith('0')) {
+            // Has leading 0, replace with 62
             phone = '62' + phone.substring(1);
+        } else if (phone.length >= 9 && phone.length <= 12) {
+            // No leading 0 (lost in spreadsheet), assume it's Indonesian number
+            // Add 62 prefix directly
+            phone = '62' + phone;
         }
+
         return 'https://wa.me/' + phone + '?text=' + encodedMessage;
     }
 
