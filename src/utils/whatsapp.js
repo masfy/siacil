@@ -36,16 +36,16 @@ export function generateWhatsAppLink(invoice, storeInfo, customerWa = null) {
     // Header
     message += '*INVOICE*\n';
     message += '========================\n';
-    message += ' 🏪 *' + (storeInfo?.store_name || 'Toko') + '*\n';
+    message += '|' + (storeInfo?.store_name || 'Toko') + '*\n';
     if (storeInfo?.address) {
-        message += ' 📍 ' + storeInfo.address + '\n';
+        message += '|' + storeInfo.address + '\n';
     }
     message += '\n';
 
     // Invoice info
-    message += ' 📋 No: #' + (invoice.invoice_id || 'INV-0000') + '\n';
-    message += ' 📅 Tanggal: ' + formatDate(invoice.date) + '\n';
-    message += ' 👤 Pelanggan: ' + (invoice.customer_name || 'Pelanggan') + '\n';
+    message += 'No: #' + (invoice.invoice_id || 'INV-0000') + '\n';
+    message += 'Tanggal: ' + formatDate(invoice.date) + '\n';
+    message += 'Pelanggan: ' + (invoice.customer_name || 'Pelanggan') + '\n';
     message += '\n';
 
     // Items
@@ -71,7 +71,7 @@ export function generateWhatsAppLink(invoice, storeInfo, customerWa = null) {
 
     // Footer
     message += '========================\n';
-    message += ' ✨ Terima kasih atas kunjungan Anda! Minta rela 😊🙏🏼 \n';
+    message += 'Terima kasih atas kunjungan Anda! Minta rela.\n';
     message += '\n';
     message += '_Powered by SI-ACIL_';
 
