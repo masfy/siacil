@@ -50,18 +50,43 @@ export default function InvoiceHistoryPage() {
 
     const parseItems = (itemsJson) => {
         try {
-            return JSON.parse(itemsJson);
+            if (typeof itemsJson === 'string') {
+                return JSON.parse(itemsJson);
+            }
+            return itemsJson || [];
         } catch {
             return [];
         }
     };
 
+    // Calculate total from items if total_amount is incorrect or missing
+    const calculateTotal = (invoice) => {
+        const items = parseItems(invoice.items_json);
+        const calculatedTotal = items.reduce((sum, item) => {
+            return sum + ((parseInt(item.price) || 0) * (parseInt(item.qty) || 1));
+        }, 0);
+
+        // Use calculated total if stored total is 0 or doesn't match
+        const storedTotal = parseInt(invoice.total_amount) || 0;
+        return calculatedTotal > 0 ? calculatedTotal : storedTotal;
+    };
+
     const handlePdf = (invoice) => {
-        generateInvoicePdf(invoice, user);
+        // Create a fixed invoice object with correct total
+        const fixedInvoice = {
+            ...invoice,
+            total_amount: calculateTotal(invoice)
+        };
+        generateInvoicePdf(fixedInvoice, user);
     };
 
     const handleWhatsApp = (invoice) => {
-        const link = generateWhatsAppLink(invoice, user, invoice.customer_wa);
+        // Create a fixed invoice object with correct total
+        const fixedInvoice = {
+            ...invoice,
+            total_amount: calculateTotal(invoice)
+        };
+        const link = generateWhatsAppLink(fixedInvoice, user, invoice.customer_wa);
         window.open(link, '_blank');
     };
 
@@ -69,7 +94,7 @@ export default function InvoiceHistoryPage() {
         <div className="p-5 space-y-4 page-enter">
             {/* Header */}
             <div className="pt-2">
-                <h1 className="text-2xl font-bold text-gray-900">Riwayat Nota</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Riwayat Invoice</h1>
                 <p className="text-gray-500 text-sm">Daftar transaksi tersimpan</p>
             </div>
 
@@ -114,7 +139,7 @@ export default function InvoiceHistoryPage() {
                                         <p className="text-green-600 text-xs mt-1">📱 {invoice.customer_wa}</p>
                                     )}
                                 </div>
-                                <p className="text-gray-900 font-bold">{formatCurrency(invoice.total_amount)}</p>
+                                <p className="text-gray-900 font-bold">{formatCurrency(calculateTotal(invoice))}</p>
                             </div>
                         </Card>
                     ))}
@@ -125,7 +150,7 @@ export default function InvoiceHistoryPage() {
             <Modal
                 isOpen={!!selectedInvoice}
                 onClose={() => setSelectedInvoice(null)}
-                title={`Nota #${selectedInvoice?.invoice_id}`}
+                title={`Invoice #${selectedInvoice?.invoice_id}`}
                 size="lg"
             >
                 {selectedInvoice && (
@@ -160,7 +185,7 @@ export default function InvoiceHistoryPage() {
                                 <div className="flex justify-between">
                                     <span className="font-semibold text-gray-900">Total</span>
                                     <span className="text-lg font-bold text-violet-600">
-                                        {formatCurrency(selectedInvoice.total_amount)}
+                                        {formatCurrency(calculateTotal(selectedInvoice))}
                                     </span>
                                 </div>
                             </div>
