@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, Input, Modal, Card } from '../components/ui';
 import { UserIcon, LockIcon, CogIcon, LinkIcon } from '../components/Icons';
 import { useAuth } from '../context/AuthContext';
-import { getApiUrl, setApiUrl, testConnection } from '../services/api';
+import { getApiUrl, setApiUrl, testConnection, isUsingDefaultApi } from '../services/api';
 
 export default function LoginPage() {
     const { login } = useAuth();
@@ -11,7 +11,8 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const [showConfigModal, setShowConfigModal] = useState(!getApiUrl());
+    // Don't show config modal by default - we have a hardcoded URL
+    const [showConfigModal, setShowConfigModal] = useState(false);
     const [apiUrlInput, setApiUrlInput] = useState(getApiUrl() || '');
     const [testingConnection, setTestingConnection] = useState(false);
     const [connectionStatus, setConnectionStatus] = useState(null);
@@ -19,11 +20,6 @@ export default function LoginPage() {
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
-
-        if (!getApiUrl()) {
-            setShowConfigModal(true);
-            return;
-        }
 
         if (!username.trim() || !password.trim()) {
             setError('Username dan password harus diisi');
@@ -76,7 +72,7 @@ export default function LoginPage() {
                     />
                     <h1 className="text-3xl font-bold text-gray-900 mb-1">SI-ACIL</h1>
                     <p className="text-gray-500 text-sm">Sistem Aplikasi Catat Invoice Lengkap</p>
-                    <p className="text-gray-400 text-xs mt-1">untuk UMKM Warga Banua</p>
+                    <p className="text-gray-400 text-xs mt-1">untuk UMKM Kalimantan Selatan</p>
                 </div>
 
                 {/* Login Card */}
@@ -150,8 +146,8 @@ export default function LoginPage() {
 
                     {connectionStatus && (
                         <div className={`p-3 rounded-xl text-sm ${connectionStatus.success
-                                ? 'bg-green-50 text-green-700 border border-green-100'
-                                : 'bg-red-50 text-red-700 border border-red-100'
+                            ? 'bg-green-50 text-green-700 border border-green-100'
+                            : 'bg-red-50 text-red-700 border border-red-100'
                             }`}>
                             {connectionStatus.message}
                         </div>
